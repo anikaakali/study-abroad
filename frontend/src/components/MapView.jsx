@@ -16,11 +16,21 @@ const MapView = ({ trips, onAddTrip }) => {
   const [showForm, setShowForm] = useState(false);
   const [lightboxImg, setLightboxImg] = useState(null);
 
+  // Wrap onAddTrip to also close modal
+  const handleAddTripAndClose = (trip) => {
+    onAddTrip(trip);
+    setShowForm(false);
+  };
+
   return (
     <div style={{ position: "relative", height: "85vh", width: "100%", margin: "auto" }}>
-
       {/* Map */}
-      <MapContainer center={[20, 0]} zoom={2} style={{ height: "100%", width: "100%" }}>
+      <MapContainer
+        center={[20, 0]}
+        zoom={2}
+        scrollWheelZoom={true}
+        style={{ height: "100%", width: "100%" }}
+      >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; OpenStreetMap contributors'
@@ -54,7 +64,7 @@ const MapView = ({ trips, onAddTrip }) => {
                           height: "60px",
                           objectFit: "cover",
                           borderRadius: "4px",
-                          cursor: "default",
+                          cursor: "pointer",
                         }}
                       />
                     ))}
@@ -71,7 +81,7 @@ const MapView = ({ trips, onAddTrip }) => {
         onClick={() => setShowForm(true)}
         style={{
           position: "absolute",
-          bottom: "20px",
+          bottom: "80px", // Raised to avoid being hidden
           right: "20px",
           backgroundColor: "#007bff",
           color: "white",
@@ -80,7 +90,7 @@ const MapView = ({ trips, onAddTrip }) => {
           height: "60px",
           fontSize: "2rem",
           border: "none",
-          cursor: "default",
+          cursor: "pointer",
           boxShadow: "0px 4px 12px rgba(0,0,0,0.2)",
           zIndex: 1000,
         }}
@@ -125,13 +135,13 @@ const MapView = ({ trips, onAddTrip }) => {
                 background: "none",
                 border: "none",
                 fontSize: "1.5rem",
-                cursor: "default",
+                cursor: "pointer",
               }}
               aria-label="Close"
             >
               ×
             </button>
-            <AddTripForm onAddTrip={onAddTrip} />
+            <AddTripForm onAddTrip={handleAddTripAndClose} />
           </div>
         </div>
       )}
@@ -151,7 +161,7 @@ const MapView = ({ trips, onAddTrip }) => {
             alignItems: "center",
             justifyContent: "center",
             zIndex: 10000,
-            cursor: "default",
+            cursor: "zoom-out",
             animation: "fadeIn 0.25s ease-out",
           }}
         >
