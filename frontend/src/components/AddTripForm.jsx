@@ -12,6 +12,11 @@ const AddTripForm = ({ onAddTrip }) => {
   const [person, setPerson] = useState("");
   const [people, setPeople] = useState([]);
 
+  const [photos, setPhotos] = useState([]);
+
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
   const handleLocationChange = async (e) => {
     const query = e.target.value;
     setLocation(query);
@@ -53,6 +58,12 @@ const AddTripForm = ({ onAddTrip }) => {
     setPeople(people.filter((p) => p !== name));
   };
 
+  const handlePhotoUpload = (e) => {
+    const files = Array.from(e.target.files);
+    const urls = files.map((file) => URL.createObjectURL(file));
+    setPhotos([...photos, ...urls]);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!selectedPlace) return;
@@ -64,6 +75,11 @@ const AddTripForm = ({ onAddTrip }) => {
       title: selectedPlace.place_name,
       description,
       people,
+      photos,
+      dateRange: {
+        start: startDate,
+        end: endDate
+      },
       lat,
       lng,
     });
@@ -74,6 +90,9 @@ const AddTripForm = ({ onAddTrip }) => {
     setSelectedPlace(null);
     setPerson("");
     setPeople([]);
+    setPhotos([]);
+    setStartDate("");
+    setEndDate("");
   };
 
   return (
@@ -102,6 +121,23 @@ const AddTripForm = ({ onAddTrip }) => {
         onChange={(e) => setDescription(e.target.value)}
       /><br />
 
+      {/* Date Range */}
+      <div style={{ marginBottom: "10px" }}>
+        <label>Start Date: </label><br />
+        <input
+          type="date"
+          value={startDate}
+          onChange={(e) => setStartDate(e.target.value)}
+        /><br />
+        <label>End Date: </label><br />
+        <input
+          type="date"
+          value={endDate}
+          onChange={(e) => setEndDate(e.target.value)}
+        />
+      </div>
+
+      {/* People */}
       <div>
         <input
           placeholder="Who were you with?"
@@ -119,6 +155,20 @@ const AddTripForm = ({ onAddTrip }) => {
         ))}
       </ul>
 
+      {/* Photos */}
+      <div style={{ marginTop: "10px" }}>
+        <label>Upload Photos:</label><br />
+        <input type="file" accept="image/*" multiple onChange={handlePhotoUpload} />
+      </div>
+
+      <div style={{ display: "flex", gap: "10px", marginTop: "10px", flexWrap: "wrap" }}>
+        {photos.map((src, idx) => (
+          <img key={idx} src={src} alt={`Trip to ${selectedPlace?.place_name || "unknown"} (${idx + 1})`}
+          width={80} height={80} />
+        ))}
+      </div>
+
+      <br />
       <button type="submit" disabled={!selectedPlace}>Add Trip</button>
     </form>
   );

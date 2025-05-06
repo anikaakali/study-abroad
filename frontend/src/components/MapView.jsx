@@ -2,9 +2,9 @@ import React, { useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import AddTripForm from "./AddTripForm";
-
 import "leaflet/dist/leaflet.css";
 
+// Fix leaflet icons
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
@@ -12,23 +12,15 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
 });
 
-const MapView = () => {
-  const [trips, setTrips] = useState([]);
+const MapView = ({ trips, onAddTrip }) => {
   const [showForm, setShowForm] = useState(false);
-
-  const handleAddTrip = (trip) => {
-    setTrips([...trips, trip]);
-    setShowForm(false); // Close modal on submit
-  };
+  const [lightboxImg, setLightboxImg] = useState(null);
 
   return (
-    <div style={{ position: "relative", height: "100vh", width: "100vw" }}>
+    <div style={{ position: "relative", height: "85vh", width: "100%", margin: "auto" }}>
+
       {/* Map */}
-      <MapContainer
-        center={[20, 0]}
-        zoom={2}
-        style={{ height: "100%", width: "100%" }}
-      >
+      <MapContainer center={[20, 0]} zoom={2} style={{ height: "100%", width: "100%" }}>
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; OpenStreetMap contributors'
@@ -36,14 +28,39 @@ const MapView = () => {
         {trips.map((trip) => (
           <Marker key={trip.id} position={[trip.lat, trip.lng]}>
             <Popup>
-              <strong>{trip.title}</strong>
-              <br />
-              {trip.description}
-              {trip.people?.length > 0 && (
-                <div>
-                  <strong>With:</strong> {trip.people.join(", ")}
-                </div>
-              )}
+              <div style={{ maxWidth: "220px" }}>
+                <strong>{trip.title}</strong><br />
+                {trip.dateRange?.start && (
+                  <p>
+                    <strong>Date:</strong> {trip.dateRange.start} → {trip.dateRange.end || "?"}
+                  </p>
+                )}
+                {trip.description && <p>{trip.description}</p>}
+                {trip.people?.length > 0 && (
+                  <p>
+                    <strong>With:</strong> {trip.people.join(", ")}
+                  </p>
+                )}
+                {trip.photos?.length > 0 && (
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "4px", marginTop: "8px" }}>
+                    {trip.photos.map((url, idx) => (
+                      <img
+                        key={idx}
+                        src={url}
+                        alt={`Trip to ${trip.title} (${idx + 1})`}
+                        onClick={() => setLightboxImg(url)}
+                        style={{
+                          width: "60px",
+                          height: "60px",
+                          objectFit: "cover",
+                          borderRadius: "4px",
+                          cursor: "default",
+                        }}
+                      />
+                    ))}
+                  </div>
+                )}
+              </div>
             </Popup>
           </Marker>
         ))}
@@ -63,7 +80,7 @@ const MapView = () => {
           height: "60px",
           fontSize: "2rem",
           border: "none",
-          cursor: "pointer",
+          cursor: "default",
           boxShadow: "0px 4px 12px rgba(0,0,0,0.2)",
           zIndex: 1000,
         }}
@@ -71,7 +88,7 @@ const MapView = () => {
         +
       </button>
 
-      {/* Modal */}
+      {/* Modal to add a trip */}
       {showForm && (
         <div
           style={{
@@ -108,14 +125,48 @@ const MapView = () => {
                 background: "none",
                 border: "none",
                 fontSize: "1.5rem",
-                cursor: "pointer",
+                cursor: "default",
               }}
               aria-label="Close"
             >
               ×
             </button>
-            <AddTripForm onAddTrip={handleAddTrip} />
+            <AddTripForm onAddTrip={onAddTrip} />
           </div>
+        </div>
+      )}
+
+      {/* Lightbox for full photo preview */}
+      {lightboxImg && (
+        <div
+          onClick={() => setLightboxImg(null)}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            height: "100vh",
+            width: "100vw",
+            backgroundColor: "rgba(0,0,0,0.85)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 10000,
+            cursor: "default",
+            animation: "fadeIn 0.25s ease-out",
+          }}
+        >
+          <img
+            src={lightboxImg}
+            alt=""
+            style={{
+              maxHeight: "90%",
+              maxWidth: "90%",
+              borderRadius: "8px",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.4)",
+              transform: "scale(0.9)",
+              animation: "zoomIn 0.25s ease-out forwards",
+            }}
+          />
         </div>
       )}
     </div>
