@@ -5,7 +5,8 @@ const FilterBar = ({ trips, onFilterChange }) => {
     dateRange: { start: '', end: '' },
     people: [],
     keywords: '',
-    selectedPeople: []
+    selectedPeople: [],
+    peopleFilterMode: 'or' // 'or' or 'and'
   });
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -31,6 +32,13 @@ const FilterBar = ({ trips, onFilterChange }) => {
     }));
   };
 
+  const togglePeopleFilterMode = () => {
+    setFilters(prev => ({
+      ...prev,
+      peopleFilterMode: prev.peopleFilterMode === 'or' ? 'and' : 'or'
+    }));
+  };
+
   const handleKeywordChange = (e) => {
     setFilters(prev => ({
       ...prev,
@@ -43,7 +51,8 @@ const FilterBar = ({ trips, onFilterChange }) => {
       dateRange: { start: '', end: '' },
       people: [],
       keywords: '',
-      selectedPeople: []
+      selectedPeople: [],
+      peopleFilterMode: 'or'
     });
   };
 
@@ -61,8 +70,16 @@ const FilterBar = ({ trips, onFilterChange }) => {
       // People filter
       if (filters.selectedPeople.length > 0) {
         const tripPeople = trip.people || [];
-        if (!filters.selectedPeople.some(person => tripPeople.includes(person))) {
-          return false;
+        if (filters.peopleFilterMode === 'and') {
+          // All selected people must be in the trip
+          if (!filters.selectedPeople.every(person => tripPeople.includes(person))) {
+            return false;
+          }
+        } else {
+          // At least one selected person must be in the trip
+          if (!filters.selectedPeople.some(person => tripPeople.includes(person))) {
+            return false;
+          }
         }
       }
 
@@ -248,18 +265,71 @@ const FilterBar = ({ trips, onFilterChange }) => {
               borderRadius: "8px",
               border: "1px solid #e9ecef"
             }}>
-              <h4 style={{ 
-                marginBottom: "12px",
-                fontSize: "1rem",
-                color: "#495057",
+              <div style={{
                 display: "flex",
+                justifyContent: "space-between",
                 alignItems: "center",
-                gap: "6px"
+                marginBottom: "12px"
               }}>
-                <span role="img" aria-label="people">👥</span>
-                Filter by People
-              </h4>
-              <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                <h4 style={{ 
+                  fontSize: "1rem",
+                  color: "#495057",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  margin: 0
+                }}>
+                  <span role="img" aria-label="people">👥</span>
+                  Filter by People
+                </h4>
+                <div style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  backgroundColor: "#e9ecef",
+                  padding: "4px",
+                  borderRadius: "6px"
+                }}>
+                  <button
+                    onClick={togglePeopleFilterMode}
+                    style={{
+                      padding: "4px 8px",
+                      backgroundColor: filters.peopleFilterMode === 'or' ? "#007bff" : "transparent",
+                      color: filters.peopleFilterMode === 'or' ? "white" : "#495057",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                      fontSize: "0.75rem",
+                      fontWeight: "bold",
+                      transition: "all 0.2s"
+                    }}
+                  >
+                    OR
+                  </button>
+                  <button
+                    onClick={togglePeopleFilterMode}
+                    style={{
+                      padding: "4px 8px",
+                      backgroundColor: filters.peopleFilterMode === 'and' ? "#007bff" : "transparent",
+                      color: filters.peopleFilterMode === 'and' ? "white" : "#495057",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                      fontSize: "0.75rem",
+                      fontWeight: "bold",
+                      transition: "all 0.2s"
+                    }}
+                  >
+                    AND
+                  </button>
+                </div>
+              </div>
+              <div style={{ 
+                display: "flex", 
+                flexWrap: "wrap", 
+                gap: "8px",
+                marginTop: "8px"
+              }}>
                 {allPeople.map(person => (
                   <button
                     key={person}
@@ -295,6 +365,16 @@ const FilterBar = ({ trips, onFilterChange }) => {
                     {person}
                   </button>
                 ))}
+              </div>
+              <div style={{
+                marginTop: "8px",
+                fontSize: "0.75rem",
+                color: "#6c757d",
+                fontStyle: "italic"
+              }}>
+                {filters.peopleFilterMode === 'or' 
+                  ? "Show trips with any of the selected people"
+                  : "Show trips with all of the selected people"}
               </div>
             </div>
           )}
