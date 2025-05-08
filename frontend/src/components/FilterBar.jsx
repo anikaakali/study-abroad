@@ -206,7 +206,8 @@ const FilterBar = ({ trips, onFilterChange }) => {
                     border: "1px solid #ced4da",
                     fontSize: "0.875rem",
                     color: "#495057",
-                    backgroundColor: "white"
+                    backgroundColor: "white",
+                    boxSizing: "border-box"
                   }}
                 />
               </div>
@@ -230,7 +231,8 @@ const FilterBar = ({ trips, onFilterChange }) => {
                     border: "1px solid #ced4da",
                     fontSize: "0.875rem",
                     color: "#495057",
-                    backgroundColor: "white"
+                    backgroundColor: "white",
+                    boxSizing: "border-box"
                   }}
                 />
               </div>
@@ -328,7 +330,8 @@ const FilterBar = ({ trips, onFilterChange }) => {
                   border: "1px solid #ced4da",
                   fontSize: "0.875rem",
                   color: "#495057",
-                  backgroundColor: "white"
+                  backgroundColor: "white",
+                  boxSizing: "border-box"
                 }}
               />
               <span 
