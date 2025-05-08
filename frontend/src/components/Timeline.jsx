@@ -1,12 +1,20 @@
-import React from "react";
+import React, { useState } from "react";
+import AddTripForm from "./AddTripForm";
 
-const Timeline = ({ trips }) => {
+const Timeline = ({ trips, onEditTrip }) => {
+  const [editingTrip, setEditingTrip] = useState(null);
+
   // Sort trips by start date (most recent first)
   const sortedTrips = [...trips].sort((a, b) => {
     const dateA = new Date(a.dateRange?.start || 0);
     const dateB = new Date(b.dateRange?.start || 0);
     return dateB - dateA;
   });
+
+  const handleEditTripAndClose = (trip) => {
+    onEditTrip(trip);
+    setEditingTrip(null);
+  };
 
   return (
     <div style={{ padding: "20px", maxWidth: "600px", margin: "auto" }}>
@@ -56,8 +64,76 @@ const Timeline = ({ trips }) => {
               ))}
             </div>
           )}
+
+          <button
+            onClick={() => setEditingTrip(trip)}
+            style={{
+              marginTop: "8px",
+              padding: "4px 8px",
+              backgroundColor: "#007bff",
+              color: "white",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            Edit Trip
+          </button>
         </div>
       ))}
+
+      {/* Modal for editing */}
+      {editingTrip && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            height: "100vh",
+            width: "100vw",
+            backgroundColor: "rgba(0,0,0,0.4)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: "20px",
+              borderRadius: "8px",
+              maxHeight: "90vh",
+              overflowY: "auto",
+              width: "90%",
+              maxWidth: "500px",
+              position: "relative",
+            }}
+          >
+            <button
+              onClick={() => setEditingTrip(null)}
+              style={{
+                position: "absolute",
+                top: "10px",
+                right: "10px",
+                background: "none",
+                border: "none",
+                fontSize: "1.5rem",
+                cursor: "pointer",
+              }}
+              aria-label="Close"
+            >
+              ×
+            </button>
+            <AddTripForm
+              onEditTrip={handleEditTripAndClose}
+              editMode={true}
+              tripToEdit={editingTrip}
+              onClose={() => setEditingTrip(null)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

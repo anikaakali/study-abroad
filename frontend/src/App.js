@@ -11,6 +11,13 @@ function App() {
     setTrips((prev) => [...prev, trip]);
   };
 
+  // Handle editing existing trips
+  const handleEditTrip = (editedTrip) => {
+    setTrips((prev) => prev.map((trip) => 
+      trip.id === editedTrip.id ? editedTrip : trip
+    ));
+  };
+
   return (
     <div>
       {/* Header */}
@@ -50,9 +57,16 @@ function App() {
 
       {/* Conditional view rendering */}
       {view === "map" ? (
-        <MapView trips={trips} onAddTrip={handleAddTrip} />
+        <MapView 
+          trips={trips} 
+          onAddTrip={handleAddTrip} 
+          onEditTrip={handleEditTrip}
+        />
       ) : (
-        <Timeline trips={trips} />
+        <Timeline 
+          trips={trips} 
+          onEditTrip={handleEditTrip}
+        />
       )}
     </div>
   );

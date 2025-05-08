@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 
 const MAPBOX_TOKEN = 'pk.eyJ1IjoiYWFrYWxpIiwiYSI6ImNtYWE4cnN4MDFyb3IybHNiaDA5Mml6a2IifQ.LOC5NMuQJbFeEF9QNFZu7w'; // my token
 
-const AddTripForm = ({ onAddTrip }) => {
+const AddTripForm = ({ onAddTrip, onEditTrip, editMode, tripToEdit, onClose }) => {
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
   const [suggestions, setSuggestions] = useState([]);
@@ -16,6 +16,22 @@ const AddTripForm = ({ onAddTrip }) => {
 
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+
+  // Initialize form with trip data when editing
+  useEffect(() => {
+    if (editMode && tripToEdit) {
+      setDescription(tripToEdit.description || "");
+      setLocation(tripToEdit.title || "");
+      setPeople(tripToEdit.people || []);
+      setPhotos(tripToEdit.photos || []);
+      setStartDate(tripToEdit.dateRange?.start || "");
+      setEndDate(tripToEdit.dateRange?.end || "");
+      setSelectedPlace({
+        place_name: tripToEdit.title,
+        center: [tripToEdit.lng, tripToEdit.lat]
+      });
+    }
+  }, [editMode, tripToEdit]);
 
   const handleLocationChange = async (e) => {
     const query = e.target.value;
@@ -70,8 +86,8 @@ const AddTripForm = ({ onAddTrip }) => {
 
     const [lng, lat] = selectedPlace.center;
 
-    onAddTrip({
-      id: Date.now(),
+    const tripData = {
+      id: editMode ? tripToEdit.id : Date.now(),
       title: selectedPlace.place_name,
       description,
       people,
@@ -82,7 +98,13 @@ const AddTripForm = ({ onAddTrip }) => {
       },
       lat,
       lng,
-    });
+    };
+
+    if (editMode) {
+      onEditTrip(tripData);
+    } else {
+      onAddTrip(tripData);
+    }
 
     // Reset form
     setLocation("");
@@ -93,11 +115,12 @@ const AddTripForm = ({ onAddTrip }) => {
     setPhotos([]);
     setStartDate("");
     setEndDate("");
+    onClose?.();
   };
 
   return (
     <form onSubmit={handleSubmit} style={{ padding: "10px" }}>
-      <h2>Add a Trip</h2>
+      <h2>{editMode ? "Edit Trip" : "Add a Trip"}</h2>
 
       <input
         placeholder="Search for a city"
@@ -169,7 +192,9 @@ const AddTripForm = ({ onAddTrip }) => {
       </div>
 
       <br />
-      <button type="submit" disabled={!selectedPlace}>Add Trip</button>
+      <button type="submit" disabled={!selectedPlace}>
+        {editMode ? "Save Changes" : "Add Trip"}
+      </button>
     </form>
   );
 };

@@ -12,14 +12,27 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
 });
 
-const MapView = ({ trips, onAddTrip }) => {
+const MapView = ({ trips, onAddTrip, onEditTrip }) => {
   const [showForm, setShowForm] = useState(false);
   const [lightboxImg, setLightboxImg] = useState(null);
+  const [editingTrip, setEditingTrip] = useState(null);
 
   // Wrap onAddTrip to also close modal
   const handleAddTripAndClose = (trip) => {
     onAddTrip(trip);
     setShowForm(false);
+  };
+
+  // Handle editing a trip
+  const handleEditTripAndClose = (trip) => {
+    onEditTrip(trip);
+    setShowForm(false);
+    setEditingTrip(null);
+  };
+
+  const handleStartEdit = (trip) => {
+    setEditingTrip(trip);
+    setShowForm(true);
   };
 
   return (
@@ -70,6 +83,20 @@ const MapView = ({ trips, onAddTrip }) => {
                     ))}
                   </div>
                 )}
+                <button
+                  onClick={() => handleStartEdit(trip)}
+                  style={{
+                    marginTop: "8px",
+                    padding: "4px 8px",
+                    backgroundColor: "#007bff",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                  }}
+                >
+                  Edit Trip
+                </button>
               </div>
             </Popup>
           </Marker>
@@ -78,10 +105,13 @@ const MapView = ({ trips, onAddTrip }) => {
 
       {/* Floating + Button */}
       <button
-        onClick={() => setShowForm(true)}
+        onClick={() => {
+          setEditingTrip(null);
+          setShowForm(true);
+        }}
         style={{
           position: "absolute",
-          bottom: "80px", // Raised to avoid being hidden
+          bottom: "80px",
           right: "20px",
           backgroundColor: "#007bff",
           color: "white",
@@ -98,7 +128,7 @@ const MapView = ({ trips, onAddTrip }) => {
         +
       </button>
 
-      {/* Modal to add a trip */}
+      {/* Modal to add/edit a trip */}
       {showForm && (
         <div
           style={{
@@ -127,7 +157,10 @@ const MapView = ({ trips, onAddTrip }) => {
             }}
           >
             <button
-              onClick={() => setShowForm(false)}
+              onClick={() => {
+                setShowForm(false);
+                setEditingTrip(null);
+              }}
               style={{
                 position: "absolute",
                 top: "10px",
@@ -141,7 +174,16 @@ const MapView = ({ trips, onAddTrip }) => {
             >
               ×
             </button>
-            <AddTripForm onAddTrip={handleAddTripAndClose} />
+            <AddTripForm
+              onAddTrip={handleAddTripAndClose}
+              onEditTrip={handleEditTripAndClose}
+              editMode={!!editingTrip}
+              tripToEdit={editingTrip}
+              onClose={() => {
+                setShowForm(false);
+                setEditingTrip(null);
+              }}
+            />
           </div>
         </div>
       )}
