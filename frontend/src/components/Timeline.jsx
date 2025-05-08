@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import AddTripForm from "./AddTripForm";
 
-const Timeline = ({ trips, onEditTrip }) => {
+const Timeline = ({ trips, onEditTrip, onDeleteTrip }) => {
   const [editingTrip, setEditingTrip] = useState(null);
+  const [tripToDelete, setTripToDelete] = useState(null);
 
   // Sort trips by start date (most recent first)
   const sortedTrips = [...trips].sort((a, b) => {
@@ -14,6 +15,13 @@ const Timeline = ({ trips, onEditTrip }) => {
   const handleEditTripAndClose = (trip) => {
     onEditTrip(trip);
     setEditingTrip(null);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (tripToDelete) {
+      onDeleteTrip(tripToDelete.id);
+      setTripToDelete(null);
+    }
   };
 
   return (
@@ -65,20 +73,34 @@ const Timeline = ({ trips, onEditTrip }) => {
             </div>
           )}
 
-          <button
-            onClick={() => setEditingTrip(trip)}
-            style={{
-              marginTop: "8px",
-              padding: "4px 8px",
-              backgroundColor: "#007bff",
-              color: "white",
-              border: "none",
-              borderRadius: "4px",
-              cursor: "pointer",
-            }}
-          >
-            Edit Trip
-          </button>
+          <div style={{ display: "flex", gap: "8px", marginTop: "8px" }}>
+            <button
+              onClick={() => setEditingTrip(trip)}
+              style={{
+                padding: "4px 8px",
+                backgroundColor: "#007bff",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
+              Edit Trip
+            </button>
+            <button
+              onClick={() => setTripToDelete(trip)}
+              style={{
+                padding: "4px 8px",
+                backgroundColor: "#dc3545",
+                color: "white",
+                border: "none",
+                borderRadius: "4px",
+                cursor: "pointer",
+              }}
+            >
+              Delete Trip
+            </button>
+          </div>
         </div>
       ))}
 
@@ -131,6 +153,67 @@ const Timeline = ({ trips, onEditTrip }) => {
               tripToEdit={editingTrip}
               onClose={() => setEditingTrip(null)}
             />
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {tripToDelete && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            height: "100vh",
+            width: "100vw",
+            backgroundColor: "rgba(0,0,0,0.4)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 10000,
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: "20px",
+              borderRadius: "8px",
+              maxWidth: "400px",
+              width: "90%",
+              textAlign: "center",
+            }}
+          >
+            <h3>Delete Trip</h3>
+            <p>Are you sure you want to delete your trip to {tripToDelete.title}?</p>
+            <p>This action cannot be undone.</p>
+            <div style={{ display: "flex", gap: "10px", justifyContent: "center", marginTop: "20px" }}>
+              <button
+                onClick={() => setTripToDelete(null)}
+                style={{
+                  padding: "8px 16px",
+                  backgroundColor: "#6c757d",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                style={{
+                  padding: "8px 16px",
+                  backgroundColor: "#dc3545",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                }}
+              >
+                Delete
+              </button>
+            </div>
           </div>
         </div>
       )}

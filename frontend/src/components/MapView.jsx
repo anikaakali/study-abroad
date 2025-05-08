@@ -12,10 +12,11 @@ L.Icon.Default.mergeOptions({
   shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
 });
 
-const MapView = ({ trips, onAddTrip, onEditTrip }) => {
+const MapView = ({ trips, onAddTrip, onEditTrip, onDeleteTrip }) => {
   const [showForm, setShowForm] = useState(false);
   const [lightboxImg, setLightboxImg] = useState(null);
   const [editingTrip, setEditingTrip] = useState(null);
+  const [tripToDelete, setTripToDelete] = useState(null);
 
   // Wrap onAddTrip to also close modal
   const handleAddTripAndClose = (trip) => {
@@ -33,6 +34,13 @@ const MapView = ({ trips, onAddTrip, onEditTrip }) => {
   const handleStartEdit = (trip) => {
     setEditingTrip(trip);
     setShowForm(true);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (tripToDelete) {
+      onDeleteTrip(tripToDelete.id);
+      setTripToDelete(null);
+    }
   };
 
   return (
@@ -83,20 +91,34 @@ const MapView = ({ trips, onAddTrip, onEditTrip }) => {
                     ))}
                   </div>
                 )}
-                <button
-                  onClick={() => handleStartEdit(trip)}
-                  style={{
-                    marginTop: "8px",
-                    padding: "4px 8px",
-                    backgroundColor: "#007bff",
-                    color: "white",
-                    border: "none",
-                    borderRadius: "4px",
-                    cursor: "pointer",
-                  }}
-                >
-                  Edit Trip
-                </button>
+                <div style={{ display: "flex", gap: "8px", marginTop: "8px" }}>
+                  <button
+                    onClick={() => handleStartEdit(trip)}
+                    style={{
+                      padding: "4px 8px",
+                      backgroundColor: "#007bff",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Edit Trip
+                  </button>
+                  <button
+                    onClick={() => setTripToDelete(trip)}
+                    style={{
+                      padding: "4px 8px",
+                      backgroundColor: "#dc3545",
+                      color: "white",
+                      border: "none",
+                      borderRadius: "4px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Delete Trip
+                  </button>
+                </div>
               </div>
             </Popup>
           </Marker>
@@ -184,6 +206,67 @@ const MapView = ({ trips, onAddTrip, onEditTrip }) => {
                 setEditingTrip(null);
               }}
             />
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {tripToDelete && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            height: "100vh",
+            width: "100vw",
+            backgroundColor: "rgba(0,0,0,0.4)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 10000,
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: "20px",
+              borderRadius: "8px",
+              maxWidth: "400px",
+              width: "90%",
+              textAlign: "center",
+            }}
+          >
+            <h3>Delete Trip</h3>
+            <p>Are you sure you want to delete your trip to {tripToDelete.title}?</p>
+            <p>This action cannot be undone.</p>
+            <div style={{ display: "flex", gap: "10px", justifyContent: "center", marginTop: "20px" }}>
+              <button
+                onClick={() => setTripToDelete(null)}
+                style={{
+                  padding: "8px 16px",
+                  backgroundColor: "#6c757d",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                style={{
+                  padding: "8px 16px",
+                  backgroundColor: "#dc3545",
+                  color: "white",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                }}
+              >
+                Delete
+              </button>
+            </div>
           </div>
         </div>
       )}

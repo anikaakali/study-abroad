@@ -18,6 +18,11 @@ function App() {
     ));
   };
 
+  // Handle deleting trips
+  const handleDeleteTrip = (tripId) => {
+    setTrips((prev) => prev.filter((trip) => trip.id !== tripId));
+  };
+
   return (
     <div>
       {/* Header */}
@@ -61,11 +66,13 @@ function App() {
           trips={trips} 
           onAddTrip={handleAddTrip} 
           onEditTrip={handleEditTrip}
+          onDeleteTrip={handleDeleteTrip}
         />
       ) : (
         <Timeline 
           trips={trips} 
           onEditTrip={handleEditTrip}
+          onDeleteTrip={handleDeleteTrip}
         />
       )}
     </div>
