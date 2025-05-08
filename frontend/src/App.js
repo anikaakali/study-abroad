@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import MapView from "./components/MapView";
 import Timeline from "./components/Timeline";
 import FilterBar from "./components/FilterBar";
+import StatsDashboard from "./components/StatsDashboard";
 
 function App() {
   const [view, setView] = useState("map");
@@ -65,6 +66,7 @@ function App() {
         <button
           onClick={() => setView("timeline")}
           style={{
+            marginRight: "10px",
             padding: "8px 16px",
             backgroundColor: view === "timeline" ? "#007bff" : "#e0e0e0",
             color: view === "timeline" ? "white" : "black",
@@ -74,6 +76,20 @@ function App() {
           }}
         >
           Timeline View
+        </button>
+
+        <button
+          onClick={() => setView("stats")}
+          style={{
+            padding: "8px 16px",
+            backgroundColor: view === "stats" ? "#007bff" : "#e0e0e0",
+            color: view === "stats" ? "white" : "black",
+            border: "none",
+            borderRadius: "4px",
+            cursor: "pointer",
+          }}
+        >
+          Stats View
         </button>
       </div>
 
@@ -90,12 +106,14 @@ function App() {
           onEditTrip={handleEditTrip}
           onDeleteTrip={handleDeleteTrip}
         />
-      ) : (
+      ) : view === "timeline" ? (
         <Timeline 
           trips={filteredTrips} 
           onEditTrip={handleEditTrip}
           onDeleteTrip={handleDeleteTrip}
         />
+      ) : (
+        <StatsDashboard trips={filteredTrips} />
       )}
     </div>
   );
