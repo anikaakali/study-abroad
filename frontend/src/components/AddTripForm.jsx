@@ -14,6 +14,7 @@ const AddTripForm = ({ onAddTrip, onEditTrip, editMode, tripToEdit, onClose }) =
   const [people, setPeople] = useState([]);
 
   const [photos, setPhotos] = useState([]);
+  const [selectedPhoto, setSelectedPhoto] = useState(null);
 
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -87,6 +88,16 @@ const AddTripForm = ({ onAddTrip, onEditTrip, editMode, tripToEdit, onClose }) =
     const files = Array.from(e.target.files);
     const urls = files.map((file) => URL.createObjectURL(file));
     setPhotos([...photos, ...urls]);
+  };
+
+  const handleDeletePhoto = (index) => {
+    const newPhotos = [...photos];
+    URL.revokeObjectURL(newPhotos[index]); // Clean up the object URL
+    newPhotos.splice(index, 1);
+    setPhotos(newPhotos);
+    if (selectedPhoto === index) {
+      setSelectedPhoto(null);
+    }
   };
 
   const handleSubmit = (e) => {
@@ -270,18 +281,87 @@ const AddTripForm = ({ onAddTrip, onEditTrip, editMode, tripToEdit, onClose }) =
         />
       </div>
 
-      <div style={{ display: "flex", gap: "10px", marginTop: "10px", flexWrap: "wrap" }}>
-        {photos.map((src, idx) => (
+      {/* Photo Grid */}
+      {photos.length > 0 && (
+        <div style={{ marginBottom: "15px" }}>
+          <div style={{ 
+            display: "grid", 
+            gridTemplateColumns: "repeat(auto-fill, minmax(150px, 1fr))", 
+            gap: "10px",
+            marginBottom: "10px"
+          }}>
+            {photos.map((src, idx) => (
+              <div key={idx} style={{ position: "relative" }}>
+                <img
+                  src={src}
+                  alt={`Trip to ${selectedPlace?.place_name || "unknown"} (${idx + 1})`}
+                  style={{
+                    width: "100%",
+                    height: "150px",
+                    objectFit: "cover",
+                    borderRadius: "4px",
+                    cursor: "pointer"
+                  }}
+                  onClick={() => setSelectedPhoto(idx)}
+                />
+                <button
+                  type="button"
+                  onClick={() => handleDeletePhoto(idx)}
+                  style={{
+                    position: "absolute",
+                    top: "5px",
+                    right: "5px",
+                    backgroundColor: "rgba(220, 53, 69, 0.9)",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "50%",
+                    width: "24px",
+                    height: "24px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    fontSize: "14px"
+                  }}
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Photo Preview Modal */}
+      {selectedPhoto !== null && (
+        <div
+          onClick={() => setSelectedPhoto(null)}
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            height: "100vh",
+            width: "100vw",
+            backgroundColor: "rgba(0,0,0,0.85)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 10000,
+            cursor: "zoom-out"
+          }}
+        >
           <img
-            key={idx}
-            src={src}
-            alt={`Trip to ${selectedPlace?.place_name || "unknown"} (${idx + 1})`}
-            width={80}
-            height={80}
-            style={{ objectFit: "cover", borderRadius: "4px" }}
+            src={photos[selectedPhoto]}
+            alt=""
+            style={{
+              maxHeight: "90%",
+              maxWidth: "90%",
+              borderRadius: "8px",
+              boxShadow: "0 4px 20px rgba(0,0,0,0.4)"
+            }}
           />
-        ))}
-      </div>
+        </div>
+      )}
 
       <br />
       <button
