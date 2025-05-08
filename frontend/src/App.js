@@ -1,10 +1,19 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import MapView from "./components/MapView";
 import Timeline from "./components/Timeline";
 
 function App() {
   const [view, setView] = useState("map");
-  const [trips, setTrips] = useState([]);
+  const [trips, setTrips] = useState(() => {
+    // Initialize trips from localStorage if available
+    const savedTrips = localStorage.getItem('trips');
+    return savedTrips ? JSON.parse(savedTrips) : [];
+  });
+
+  // Save trips to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('trips', JSON.stringify(trips));
+  }, [trips]);
 
   // Passed to MapView to handle adding new trips
   const handleAddTrip = (trip) => {
