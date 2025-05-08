@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import MapView from "./components/MapView";
 import Timeline from "./components/Timeline";
+import FilterBar from "./components/FilterBar";
 
 function App() {
   const [view, setView] = useState("map");
@@ -9,10 +10,12 @@ function App() {
     const savedTrips = localStorage.getItem('trips');
     return savedTrips ? JSON.parse(savedTrips) : [];
   });
+  const [filteredTrips, setFilteredTrips] = useState(trips);
 
   // Save trips to localStorage whenever they change
   useEffect(() => {
     localStorage.setItem('trips', JSON.stringify(trips));
+    setFilteredTrips(trips); // Reset filtered trips when trips change
   }, [trips]);
 
   // Passed to MapView to handle adding new trips
@@ -30,6 +33,11 @@ function App() {
   // Handle deleting trips
   const handleDeleteTrip = (tripId) => {
     setTrips((prev) => prev.filter((trip) => trip.id !== tripId));
+  };
+
+  // Handle filter changes
+  const handleFilterChange = (filtered) => {
+    setFilteredTrips(filtered);
   };
 
   return (
@@ -69,17 +77,22 @@ function App() {
         </button>
       </div>
 
+      {/* Filter Bar */}
+      <div style={{ maxWidth: "800px", margin: "0 auto 20px" }}>
+        <FilterBar trips={trips} onFilterChange={handleFilterChange} />
+      </div>
+
       {/* Conditional view rendering */}
       {view === "map" ? (
         <MapView 
-          trips={trips} 
+          trips={filteredTrips} 
           onAddTrip={handleAddTrip} 
           onEditTrip={handleEditTrip}
           onDeleteTrip={handleDeleteTrip}
         />
       ) : (
         <Timeline 
-          trips={trips} 
+          trips={filteredTrips} 
           onEditTrip={handleEditTrip}
           onDeleteTrip={handleDeleteTrip}
         />
